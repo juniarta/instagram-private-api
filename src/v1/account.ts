@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as Bluebird from 'bluebird';
 import { plainToClass } from 'class-transformer';
 import { User } from '../models/user';
 import { Request, Session, IGAccountNotFoundError, RequestError } from '../core';
@@ -27,6 +28,7 @@ export class Account {
   }
 
   static async searchForUser(session: Session, username: string): Promise<User> {
+    username = username.toLowerCase();
     const accounts = await Account.search(session, username);
     const account = accounts.find(account => account.username === username);
     if (!account) throw new IGAccountNotFoundError();
@@ -65,7 +67,7 @@ export class Account {
     return plainToClass(User, data.user as User);
   }
 
-  static editProfile(session: Session, settings: any): Promise<User> {
+  static editProfile(session: Session, settings: any): Bluebird<User> {
     settings = _.isObject(settings) ? settings : {};
     if (_.isString(settings.phoneNumber)) settings.phone_number = settings.phoneNumber;
     if (_.isString(settings.fullName)) settings.first_name = settings.fullName;
